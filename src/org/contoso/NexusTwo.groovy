@@ -155,8 +155,12 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}"?a="${mavenCoordinates.artifactId}" \
-                        | jq -r '..|select(has("version"))?|.version' | sort -gr
+                        --location "${LUCENE_SEARCH_URL}\
+                            ?g=${mavenCoordinates.groupId}\
+                            &a=${mavenCoordinates.artifactId}\
+                            &p=${mavenCoordinates.packaging}\
+                            &c=${mavenCoordinates.classifier}\
+                            | jq -r '..|select(has("version"))?|.version' | sort -gr"
                         """
         ).split("\r?\n")
 
@@ -208,8 +212,7 @@ class NexusTwo {
                             &a=${mavenCoordinates.artifactId}\
                             &v=${mavenCoordinates.version}\
                             &p=${mavenCoordinates.packaging}\
-                            &c=${mavenCoordinates.classifier}\
-                            | jq -r '..|select(has("version"))?|.version' | sort -gr"
+                            &c=${mavenCoordinates.classifier}"
                         """
         ).split("\r?\n")
 
