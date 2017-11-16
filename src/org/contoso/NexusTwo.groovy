@@ -3,15 +3,15 @@ package org.contoso
 //import static groovy.json.JsonOutput.prettyPrint
 
 class NexusTwo {
-    static def rootUrl = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
+    static String _rootUrl = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
     static final def HTTP_CODE_FOUND_OK = [302, 200]
 
     static def setRootUrl(url) {
-        rootUrl = url
+        _rootUrl = url
     }
 
     static def getRootUrl() {
-        return rootUrl
+        return _rootUrl
     }
 
     static def getLuceneSearchUrl() {
