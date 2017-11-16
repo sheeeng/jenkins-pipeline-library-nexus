@@ -3,14 +3,27 @@ package org.contoso
 //import static groovy.json.JsonOutput.prettyPrint
 
 class NexusTwo {
-    static String ROOT_URL = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
-    static final String LUCENE_SEARCH_URL = "${ROOT_URL}/service/local/lucene/search"
-    static final String STATUS_URL = "${ROOT_URL}/service/local/status"
-    static final String REPOSITORIES_URL = "${ROOT_URL}/service/local/repositories"
+    private static String rootUrl = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
     static final def HTTP_CODE_FOUND_OK = [302, 200]
 
     static setRootUrl(String url) {
-        ROOT_URL = url
+        rootUrl = url
+    }
+
+    static rootUrl() {
+        return rootUrl
+    }
+
+    static def getLuceneSearchUrl() {
+        return "${rootUrl()}/service/local/lucene/search"
+    }
+
+    static def getStatusUrl() {
+        return "${rootUrl()}/service/local/status"
+    }
+
+    static def getRepositoriesUrl() {
+        return "${rootUrl()}/service/local/repositories"
     }
 
     static boolean isOnline() {
@@ -20,7 +33,7 @@ class NexusTwo {
                     "--silent",
                     "--output", "/dev/null",
                     "--write-out", "%{http_code}",
-                    "--location", "${ROOT_URL}",
+                    "--location", "${rootUrl()}",
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
@@ -52,7 +65,7 @@ class NexusTwo {
                     "--header", "Content-Type: application/json",
                     "--header", "Accept: application/json",
                     "--request", "GET",
-                    "--location", "${STATUS_URL}"
+                    "--location", "${getStatusUrl()}"
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
@@ -74,7 +87,7 @@ class NexusTwo {
                     --header "Content-Type: application/json" \
                     --header "Accept: application/json" \
                     --request GET \
-                    --location "${REPOSITORIES_URL}" \
+                    --location "${getRepositoriesUrl()}" \
                     | jq -r '..|select(has("id"))?|.id'
                     """
         def proc = ['bash',
@@ -100,7 +113,7 @@ class NexusTwo {
                     "--header", "Content-Type: application/json",
                     "--header", "Accept: application/json",
                     "--request", "GET",
-                    "--location", "${LUCENE_SEARCH_URL}"
+                    "--location", "${getLuceneSearchUrl()}"
                             + '?' + "q=${keyword}"
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
@@ -123,7 +136,7 @@ class NexusTwo {
                     "--header", "Content-Type: application/json",
                     "--header", "Accept: application/json",
                     "--request", "GET",
-                    "--location", "${LUCENE_SEARCH_URL}"
+                    "--location", "${getLuceneSearchUrl()}"
                             + '?' + "g=${mavenCoordinates.get('groupId')}"
                             + '&' + "a=${mavenCoordinates.get('artifactId')}"
                             + '&' + "v=${mavenCoordinates.get('version')}"
@@ -148,7 +161,7 @@ class NexusTwo {
                     --silent \
                     --header "Content-Type: application/json" \
                     --header "Accept: application/json" \
-                    --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}" \
+                    --location "${getLuceneSearchUrl()}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}" \
                     | jq -r '..|select(has("version"))?|.version' | sort -gr
                     """
         def proc = ['bash',
@@ -174,7 +187,7 @@ class NexusTwo {
                         --head \
                         --output /dev/null \
                         --write-out %{http_code} \
-                        --location "${ROOT_URL}"
+                        --location "${rootUrl()}"
                         """
         )
 
@@ -198,7 +211,7 @@ class NexusTwo {
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
                         --request GET \
-                        --location "${STATUS_URL}"
+                        --location "${getStatusUrl()}"
                         """
         )
 
@@ -214,7 +227,7 @@ class NexusTwo {
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
                         --request GET \
-                        --location "${REPOSITORIES_URL}" \
+                        --location "${getRepositoriesUrl()}" \
                         | jq -r '..|select(has("id"))?|.id'
                         """
         ).split("\r?\n")
@@ -235,7 +248,7 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}?q=${keyword}"
+                        --location "${getLuceneSearchUrl()}?q=${keyword}"
                         """
         ).split("\r?\n")
 
@@ -255,7 +268,7 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}"
+                        --location "${getLuceneSearchUrl()}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}"
                         """
         ).split("\r?\n")
 
@@ -275,7 +288,7 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}" \
+                        --location "${getLuceneSearchUrl()}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}" \
                         | jq -r '..|select(has("version"))?|.version' | sort -gr
                         """
         ).split("\r?\n")
