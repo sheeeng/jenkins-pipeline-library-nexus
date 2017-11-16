@@ -62,6 +62,29 @@ class NexusTwo {
             return "${appendableOutput.toString()}"
     }
 
+    static def getRepositories() {
+        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
+
+        def proc = ["curl",
+                    "--silent",
+                    "--fail",
+                    "--show-error",  // https://superuser.com/a/1249678
+                    "--header", "Content-Type: application/json",
+                    "--header", "Accept: application/json",
+                    "--request", "GET",
+                    "--location", "${REPOSITORIES_URL}"
+        ].execute()
+        proc.consumeProcessOutput(appendableOutput, appendableError)
+        proc.waitForOrKill(1000)
+        //println "output> ${appendableOutput.toString()}"
+        //println "error> ${appendableError.toString()}"
+
+        if (proc.exitValue() != 0)
+            return "${appendableError.toString()}"
+        else
+            return "${appendableOutput.toString()}"
+    }
+
     static def search(String keyword) {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
         def proc = ["curl",
@@ -170,6 +193,22 @@ class NexusTwo {
                         --header "Accept: application/json" \
                         --request GET \
                         --location "${STATUS_URL}"
+                        """
+        )
+
+        return status
+    }
+
+    static def getRepositories(jenkins) {
+        def status = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent --fail --show-error \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --request GET \
+                        --location "${REPOSITORIES_URL}"
                         """
         )
 

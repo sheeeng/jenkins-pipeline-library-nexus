@@ -34,6 +34,8 @@ pipeline {
                         echo "IsOffline(this):\n${IsOffline(this)}"
                         echo "GetStatus():\n${GetStatus()}"
                         echo "GetStatus(this):\n${GetStatus(this)}"
+                        echo "GetRepositories():\n${GetRepositories()}"
+                        echo "GetRepositories(this):\n${GetRepositories(this)}"
                         echo "Search('log4j'):\n${Search('log4j')}"
                         echo "Search(this, 'log4j'):\n${Search(this, 'log4j')}"
                         echo "SearchArtifacts(mavenCoordinates):\n${SearchArtifacts(this, mavenCoordinates)}"
