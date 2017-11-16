@@ -6,16 +6,24 @@ class NexusTwo {
     static def rootUrl = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
     static final def HTTP_CODE_FOUND_OK = [302, 200]
 
+    static def setRootUrl(url) {
+        rootUrl = url
+    }
+
+    static def getRootUrl() {
+        return rootUrl
+    }
+
     static def getLuceneSearchUrl() {
-        return "${rootUrl()}/service/local/lucene/search"
+        return "${getRootUrl()}/service/local/lucene/search"
     }
 
     static def getStatusUrl() {
-        return "${rootUrl()}/service/local/status"
+        return "${getRootUrl()}/service/local/status"
     }
 
     static def getRepositoriesUrl() {
-        return "${rootUrl()}/service/local/repositories"
+        return "${getRootUrl()}/service/local/repositories"
     }
 
     static boolean isOnline() {
@@ -25,7 +33,7 @@ class NexusTwo {
                     "--silent",
                     "--output", "/dev/null",
                     "--write-out", "%{http_code}",
-                    "--location", "${rootUrl()}",
+                    "--location", "${getRootUrl()}",
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
@@ -179,7 +187,7 @@ class NexusTwo {
                         --head \
                         --output /dev/null \
                         --write-out %{http_code} \
-                        --location "${rootUrl()}"
+                        --location "${getRootUrl()}"
                         """
         )
 
