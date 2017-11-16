@@ -191,7 +191,7 @@ class NexusTwo {
                         """
         )
 
-        if (httpCode in HTTP_CODE_FOUND_OK) {
+        if (httpCode.toInteger() in HTTP_CODE_FOUND_OK) {
             return true
         } else {
             return false
