@@ -236,7 +236,6 @@ class NexusTwo {
     }
 
     static def search(jenkins, String keyword) {
-        // Store output in random file as JENKINS-26133 exists might due to typographical error.
         // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
         // Otherwise, waste time trying to debug the above problem.
         // You have been warned!
@@ -256,7 +255,6 @@ class NexusTwo {
     }
 
     static def searchArtifacts(jenkins, mavenCoordinates) {
-        // Store output in random file as JENKINS-26133 exists might due to typographical error.
         // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
         // Otherwise, waste time trying to debug the above problem.
         // You have been warned!
@@ -276,7 +274,6 @@ class NexusTwo {
     }
 
     static def searchVersions(jenkins, mavenCoordinates) {
-        // Store output in random file as JENKINS-26133 exists might due to typographical error.
         // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
         // Otherwise, waste time trying to debug the above problem.
         // You have been warned!
