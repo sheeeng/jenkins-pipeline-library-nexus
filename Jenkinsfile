@@ -27,8 +27,9 @@ pipeline {
                             packaging : "",
                             classifier: ""
                     ]
-                    SetRootUrl('http://nexus-two:8081/nexus')
+                    NexusTwo().rootUrl = 'http://nexus-two:8081/nexus'
                     for (i = 0; i <1; i++) {
+                        echo "NexusTwo().rootUrl:\n${NexusTwo().rootUrl}"
                         echo "IsOnline():\n${IsOnline()}"
                         echo "IsOffline():\n${IsOffline()}"
                         echo "GetStatus():\n${GetStatus()}"

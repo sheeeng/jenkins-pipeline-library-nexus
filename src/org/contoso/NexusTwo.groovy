@@ -6,14 +6,6 @@ class NexusTwo {
     static def rootUrl = 'http://repository.sonatype.org'  // 'http://nexus-two:8081/nexus'
     static final def HTTP_CODE_FOUND_OK = [302, 200]
 
-    static setRootUrl(String url) {
-        rootUrl = url
-    }
-
-    static def rootUrl() {
-        return rootUrl
-    }
-
     static def getLuceneSearchUrl() {
         return "${rootUrl()}/service/local/lucene/search"
     }
