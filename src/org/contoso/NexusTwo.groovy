@@ -77,7 +77,6 @@ class NexusTwo {
         def proc = ['bash',
                     '-c',
                     command].execute()
-        ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
         //println "output> ${appendableOutput.toString()}"
@@ -204,7 +203,7 @@ class NexusTwo {
     }
 
     static def getRepositories(jenkins) {
-        def status = jenkins.sh(
+        def repositories = jenkins.sh(
                 returnStdout: true,
                 script: """
                         curl \
@@ -215,9 +214,9 @@ class NexusTwo {
                         --location "${REPOSITORIES_URL}" \
                         | jq -r '..|select(has("id"))?|.id'
                         """
-        )
+        ).split("\r?\n")
 
-        return status
+        return repositories
     }
 
     static def search(jenkins, String keyword) {
