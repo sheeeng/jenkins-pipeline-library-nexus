@@ -39,6 +39,79 @@ class NexusTwo {
         return !isOnline()
     }
 
+    static def getStatus() {
+        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
+
+        def proc = ["curl",
+                    "--silent",
+                    "--fail",
+                    "--show-error",  // https://superuser.com/a/1249678
+                    "--header", "Content-Type: application/json",
+                    "--header", "Accept: application/json",
+                    "--request", "GET",
+                    "--location", "${STATUS_URL}"
+        ].execute()
+        proc.consumeProcessOutput(appendableOutput, appendableError)
+        proc.waitForOrKill(1000)
+        //println "output> ${appendableOutput.toString()}"
+        //println "error> ${appendableError.toString()}"
+
+        if (proc.exitValue() != 0)
+            return "${appendableError.toString()}"
+        else
+            return "${appendableOutput.toString()}"
+    }
+
+    static def search(String keyword) {
+        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
+        def proc = ["curl",
+                    "--silent",
+                    "--fail",
+                    "--show-error",  // https://superuser.com/a/1249678
+                    "--header", "Content-Type: application/json",
+                    "--header", "Accept: application/json",
+                    "--request", "GET",
+                    "--location", "${LUCENE_SEARCH_URL}"
+                            + '?' + "q=${keyword}"
+        ].execute()
+        proc.consumeProcessOutput(appendableOutput, appendableError)
+        proc.waitForOrKill(1000)
+        //println "output> ${prettyPrint(appendableOutput.toString())}"
+        //println "error> ${prettyPrint(appendableError.toString())}"
+
+        if (proc.exitValue() != 0)
+            return "${appendableError.toString()}"
+        else
+            return "${appendableOutput.toString()}"
+    }
+
+    static def getArtifacts(Map mavenCoordinates) {
+        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
+        def proc = ["curl",
+                    "--silent",
+                    "--fail",
+                    "--show-error",  // https://superuser.com/a/1249678
+                    "--header", "Content-Type: application/json",
+                    "--header", "Accept: application/json",
+                    "--request", "GET",
+                    "--location", "${LUCENE_SEARCH_URL}"
+                            + '?' + "g=${mavenCoordinates.get('groupId')}"
+                            + '&' + "a=${mavenCoordinates.get('artifactId')}"
+                            + '&' + "v=${mavenCoordinates.get('version')}"
+                            + '&' + "p=${mavenCoordinates.get('packaging')}"
+                            + '&' + "c=${mavenCoordinates.get('classifier')}"
+        ].execute()
+        proc.consumeProcessOutput(appendableOutput, appendableError)
+        proc.waitForOrKill(1000)
+        //println "output> ${prettyPrint(appendableOutput.toString())}"
+        //println "error> ${prettyPrint(appendableError.toString())}"
+
+        if (proc.exitValue() != 0)
+            return "${appendableError.toString()}"
+        else
+            return "${appendableOutput.toString()}"
+    }
+
     static def isOnline(jenkins) {
         def httpCode = jenkins.sh(
                 returnStdout: true,
@@ -61,29 +134,6 @@ class NexusTwo {
 
     static def isOffline(jenkins) {
         return !isOnline(jenkins)
-    }
-
-    static def getStatus() {
-        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
-
-        def proc = ["curl",
-                    "--silent",
-                    "--fail",
-                    "--show-error",  // https://superuser.com/a/1249678
-                    "--header", "Content-Type: application/json",
-                    "--header", "Accept: application/json",
-                    "--request", "GET",
-                    "--location", "${STATUS_URL}"
-        ].execute()
-        proc.consumeProcessOutput(appendableOutput, appendableError)
-        proc.waitForOrKill(1000)
-        //println "output> ${appendableOutput.toString()}"
-        //println "error> ${appendableError.toString()}"
-
-        if (proc.exitValue() != 0)
-            return "${appendableError.toString()}"
-        else
-            return "${appendableOutput.toString()}"
     }
 
     static def getStatus(jenkins) {
@@ -119,27 +169,25 @@ class NexusTwo {
         return state
     }
 
-    static def search(String keyword) {
-        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
-        def proc = ["curl",
-                    "--silent",
-                    "--fail",
-                    "--show-error",  // https://superuser.com/a/1249678
-                    "--header", "Content-Type: application/json",
-                    "--header", "Accept: application/json",
-                    "--request", "GET",
-                    "--location", "${LUCENE_SEARCH_URL}"
-                            + '?' + "q=${keyword}"
-        ].execute()
-        proc.consumeProcessOutput(appendableOutput, appendableError)
-        proc.waitForOrKill(1000)
-        //println "output> ${prettyPrint(appendableOutput.toString())}"
-        //println "error> ${prettyPrint(appendableError.toString())}"
+    static def search(jenkins, String keyword) {
+        // Store output in random file as JENKINS-26133 exists might due to typographical error.
+        // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
+        // Otherwise, waste time trying to debug the above problem.
+        // You have been warned!
 
-        if (proc.exitValue() != 0)
-            return "${appendableError.toString()}"
-        else
-            return "${appendableOutput.toString()}"
+        def versions = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --location "${LUCENE_SEARCH_URL}\
+                            ?q=${keyword}"
+                        """
+        ).split("\r?\n")
+
+        return versions
     }
 
     static def searchVersions(jenkins, mavenCoordinates) {
@@ -165,33 +213,6 @@ class NexusTwo {
         ).split("\r?\n")
 
         return versions
-    }
-
-    static def getArtifacts(Map mavenCoordinates) {
-        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
-        def proc = ["curl",
-                    "--silent",
-                    "--fail",
-                    "--show-error",  // https://superuser.com/a/1249678
-                    "--header", "Content-Type: application/json",
-                    "--header", "Accept: application/json",
-                    "--request", "GET",
-                    "--location", "${LUCENE_SEARCH_URL}"
-                            + '?' + "g=${mavenCoordinates.get('groupId')}"
-                            + '&' + "a=${mavenCoordinates.get('artifactId')}"
-                            + '&' + "v=${mavenCoordinates.get('version')}"
-                            + '&' + "p=${mavenCoordinates.get('packaging')}"
-                            + '&' + "c=${mavenCoordinates.get('classifier')}"
-        ].execute()
-        proc.consumeProcessOutput(appendableOutput, appendableError)
-        proc.waitForOrKill(1000)
-        //println "output> ${prettyPrint(appendableOutput.toString())}"
-        //println "error> ${prettyPrint(appendableError.toString())}"
-
-        if (proc.exitValue() != 0)
-            return "${appendableError.toString()}"
-        else
-            return "${appendableOutput.toString()}"
     }
 
     static def searchArtifacts(jenkins, mavenCoordinates) {
