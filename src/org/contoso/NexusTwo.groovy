@@ -114,21 +114,17 @@ class NexusTwo {
 
     static def searchVersions(Map mavenCoordinates) {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
-        def proc = ["curl",
-                    "--silent",
-                    "--fail",
-                    "--show-error",  // https://superuser.com/a/1249678
-                    "--header", "Content-Type: application/json",
-                    "--header", "Accept: application/json",
-                    "--request", "GET",
-                    "--location", "${LUCENE_SEARCH_URL}"
-                            + '?' + "g=${mavenCoordinates.get('groupId')}"
-                            + '&' + "a=${mavenCoordinates.get('artifactId')}"
-                            + '&' + "v=${mavenCoordinates.get('version')}"
-                            + '&' + "p=${mavenCoordinates.get('packaging')}"
-                            + '&' + "c=${mavenCoordinates.get('classifier')}",
-                    ""
-        ].execute()
+        def command = """
+                    curl \
+                    --silent \
+                    --header "Content-Type: application/json" \
+                    --header "Accept: application/json" \
+                    --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}"
+                    | jq -r '..|select(has("version"))?|.version' | sort -gr"
+                    """
+        def proc = ['bash',
+                    '-c',
+                    command].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
         //println "output> ${prettyPrint(appendableOutput.toString())}"
