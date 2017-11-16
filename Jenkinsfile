@@ -29,18 +29,19 @@ pipeline {
                     ]
                     for (i = 0; i <1; i++) {
                         echo "IsOnline():\n${IsOnline()}"
-                        echo "IsOnline(this):\n${IsOnline(this)}"
                         echo "IsOffline():\n${IsOffline()}"
-                        echo "IsOffline(this):\n${IsOffline(this)}"
                         echo "GetStatus():\n${GetStatus()}"
-                        echo "GetStatus(this):\n${GetStatus(this)}"
                         echo "GetRepositories():\n${GetRepositories()}"
-                        echo "GetRepositories(this):\n${GetRepositories(this)}"
                         echo "Search('log4j'):\n${Search('log4j')}"
-                        echo "Search(this, 'log4j'):\n${Search(this, 'log4j')}"
-                        echo "SearchArtifacts(mavenCoordinates):\n${SearchArtifacts(this, mavenCoordinates)}"
-                        echo "SearchArtifacts(this, mavenCoordinates):\n${SearchArtifacts(this, mavenCoordinates)}"
+                        echo "SearchArtifacts(mavenCoordinates):\n${SearchArtifacts(mavenCoordinates)}"
                         echo "SearchVersions(mavenCoordinates):\n${SearchVersions(mavenCoordinates)}"
+
+                        echo "IsOnline(this):\n${IsOnline(this)}"
+                        echo "IsOffline(this):\n${IsOffline(this)}"
+                        echo "GetStatus(this):\n${GetStatus(this)}"
+                        echo "GetRepositories(this):\n${GetRepositories(this)}"
+                        echo "Search(this, 'log4j'):\n${Search(this, 'log4j')}"
+                        echo "SearchArtifacts(this, mavenCoordinates):\n${SearchArtifacts(this, mavenCoordinates)}"
                         echo "SearchVersions(this, mavenCoordinates):\n${SearchVersions(this, mavenCoordinates)}"
                         sleep(3)
                     }

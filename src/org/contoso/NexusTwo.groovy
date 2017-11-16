@@ -3,8 +3,7 @@ package org.contoso
 //import static groovy.json.JsonOutput.prettyPrint
 
 class NexusTwo {
-    static String ROOT_URL = 'http://nexus-two:8081/nexus'
-
+    static String ROOT_URL = 'http://repositories.sonatype.org/nexus'  // 'http://nexus-two:8081/nexus'
     static final String LUCENE_SEARCH_URL = "${ROOT_URL}/service/local/lucene/search"
     static final String STATUS_URL = "${ROOT_URL}/service/local/status"
     static final String REPOSITORIES_URL = "${ROOT_URL}/service/local/repositories"
