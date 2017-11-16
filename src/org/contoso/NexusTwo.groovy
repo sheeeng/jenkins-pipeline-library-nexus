@@ -208,8 +208,8 @@ class NexusTwo {
                             &a=${mavenCoordinates.artifactId}\
                             &v=${mavenCoordinates.version}\
                             &p=${mavenCoordinates.packaging}\
-                            &c=${mavenCoordinates.classifier}
-                        | jq -r '..|select(has("version"))?|.version' | sort -gr
+                            &c=${mavenCoordinates.classifier}\
+                            | jq -r '..|select(has("version"))?|.version' | sort -gr"
                         """
         ).split("\r?\n")
 
