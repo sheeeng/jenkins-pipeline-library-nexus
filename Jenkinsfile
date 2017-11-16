@@ -29,8 +29,8 @@ pipeline {
                     ]
                     for (i = 0; i <1; i++) {
                         echo "SetRootUrl('http://nexus-two:8081/nexus'):\n${SetRootUrl('http://nexus-two:8081/nexus')}"
-                        echo "SetRootUrl():\n${SetRootUrl('http://nexus-two:8081/nexus')}"
-                        
+                        echo "GetRootUrl():\n${GetRootUrl()}"
+
                         echo "IsOnline():\n${IsOnline()}"
                         echo "IsOffline():\n${IsOffline()}"
                         echo "GetStatus():\n${GetStatus()}"
