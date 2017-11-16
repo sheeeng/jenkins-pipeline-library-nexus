@@ -153,8 +153,9 @@ class NexusTwo {
                 script: """
                         curl \
                         --silent \
+                        --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}"?a=${mavenCoordinates.artifactId}" \
+                        --location "${LUCENE_SEARCH_URL}"?a="${mavenCoordinates.artifactId}" \
                         | jq -r '..|select(has("version"))?|.version' | sort -gr
                         """
         ).split("\r?\n")
@@ -190,5 +191,26 @@ class NexusTwo {
             return "${appendableError.toString()}"
         else
             return "${appendableOutput.toString()}"
+    }
+
+    static def searchArtifacts(jenkins, mavenCoordinates) {
+        // Store output in random file as JENKINS-26133 exists might due to typographical error.
+        // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
+        // Otherwise, waste time trying to debug the above problem.
+        // You have been warned!
+
+        def versions = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --location "${LUCENE_SEARCH_URL}"?a="${mavenCoordinates.artifactId}" \
+                        | jq -r '..|select(has("version"))?|.version' | sort -gr
+                        """
+        ).split("\r?\n")
+
+        return versions
     }
 }

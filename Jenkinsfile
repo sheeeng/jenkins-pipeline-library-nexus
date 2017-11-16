@@ -28,14 +28,14 @@ pipeline {
                             classifier: ""
                     ]
                     for (i = 0; i <1; i++) {
-                        echo "IsOnline():\n${IsOnline()}"
+                        //echo "IsOnline():\n${IsOnline()}"
                         echo "IsOnline(this):\n${IsOnline(this)}"
-                        echo "IsOffline():\n${IsOffline()}"
+                        //echo "IsOffline():\n${IsOffline()}"
                         echo "IsOffline(this):\n${IsOffline(this)}"
-                        echo "GetStatus():\n${GetStatus()}"
+                        //echo "GetStatus():\n${GetStatus()}"
                         echo "GetStatus(this):\n${GetStatus(this)}"
-                        echo "Search('log4j'):\n${Search('log4j')}"
-                        echo "GetArtifacts(mavenCoordinates):\n${GetArtifacts(mavenCoordinates)}"
+                        //echo "Search('log4j'):\n${Search('log4j')}"
+                        //echo "GetArtifacts(mavenCoordinates):\n${GetArtifacts(mavenCoordinates)}"
                         echo "SearchVersions(this, mavenCoordinates):\n${SearchVersions(this, mavenCoordinates)}"
                         sleep(3)
                     }
