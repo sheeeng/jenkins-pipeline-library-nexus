@@ -85,7 +85,7 @@ class NexusTwo {
             return "${appendableOutput.toString()}"
     }
 
-    static def getArtifacts(Map mavenCoordinates) {
+    static def searchArtifacts(Map mavenCoordinates) {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
         def proc = ["curl",
                     "--silent",
@@ -100,6 +100,35 @@ class NexusTwo {
                             + '&' + "v=${mavenCoordinates.get('version')}"
                             + '&' + "p=${mavenCoordinates.get('packaging')}"
                             + '&' + "c=${mavenCoordinates.get('classifier')}"
+        ].execute()
+        proc.consumeProcessOutput(appendableOutput, appendableError)
+        proc.waitForOrKill(1000)
+        //println "output> ${prettyPrint(appendableOutput.toString())}"
+        //println "error> ${prettyPrint(appendableError.toString())}"
+
+        if (proc.exitValue() != 0)
+            return "${appendableError.toString()}"
+        else
+            return "${appendableOutput.toString()}"
+    }
+
+    static def searchVersions(Map mavenCoordinates) {
+        def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
+        def proc = ["curl",
+                    "--silent",
+                    "--fail",
+                    "--show-error",  // https://superuser.com/a/1249678
+                    "--header", "Content-Type: application/json",
+                    "--header", "Accept: application/json",
+                    "--request", "GET",
+                    "--location", "${LUCENE_SEARCH_URL}"
+                            + '?' + "g=${mavenCoordinates.get('groupId')}"
+                            + '&' + "a=${mavenCoordinates.get('artifactId')}"
+                            + '&' + "v=${mavenCoordinates.get('version')}"
+                            + '&' + "p=${mavenCoordinates.get('packaging')}"
+                            + '&' + "c=${mavenCoordinates.get('classifier')}",
+                    "|",
+                    "jq", "--raw", '..|select(has(\"version\"))?|.version', "|", "sort", "-gr"
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
@@ -152,23 +181,6 @@ class NexusTwo {
         return status
     }
 
-    static def getStatusString(jenkins) {
-        def state = jenkins.sh(
-                returnStdout: true,
-                script: """
-                        curl \
-                        --silent --fail --show-error \
-                        --header "Content-Type: application/json" \
-                        --header "Accept: application/json" \
-                        --request GET \
-                        --location "${STATUS_URL}" \
-                        | jq -r '..|select(has("state"))?|.state'
-                        """
-        )
-
-        return state
-    }
-
     static def search(jenkins, String keyword) {
         // Store output in random file as JENKINS-26133 exists might due to typographical error.
         // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
@@ -182,33 +194,7 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}\
-                            ?q=${keyword}"
-                        """
-        ).split("\r?\n")
-
-        return versions
-    }
-
-    static def searchVersions(jenkins, mavenCoordinates) {
-        // Store output in random file as JENKINS-26133 exists might due to typographical error.
-        // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
-        // Otherwise, waste time trying to debug the above problem.
-        // You have been warned!
-
-        def versions = jenkins.sh(
-                returnStdout: true,
-                script: """
-                        curl \
-                        --silent \
-                        --header "Content-Type: application/json" \
-                        --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}\
-                            ?g=${mavenCoordinates.groupId}\
-                            &a=${mavenCoordinates.artifactId}\
-                            &p=${mavenCoordinates.packaging}\
-                            &c=${mavenCoordinates.classifier}\
-                            | jq -r '..|select(has("version"))?|.version' | sort -gr"
+                        --location "${LUCENE_SEARCH_URL}?q=${keyword}"
                         """
         ).split("\r?\n")
 
@@ -228,15 +214,32 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}\
-                            ?g=${mavenCoordinates.groupId}\
-                            &a=${mavenCoordinates.artifactId}\
-                            &v=${mavenCoordinates.version}\
-                            &p=${mavenCoordinates.packaging}\
-                            &c=${mavenCoordinates.classifier}"
+                        --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}"
                         """
         ).split("\r?\n")
 
         return versions
     }
+
+    static def searchVersions(jenkins, mavenCoordinates) {
+        // Store output in random file as JENKINS-26133 exists might due to typographical error.
+        // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
+        // Otherwise, waste time trying to debug the above problem.
+        // You have been warned!
+
+        def versions = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --location "${LUCENE_SEARCH_URL}?g=${mavenCoordinates.groupId}&a=${mavenCoordinates.artifactId}&v=${mavenCoordinates.version}&p=${mavenCoordinates.packaging}&c=${mavenCoordinates.classifier}"
+                        | jq -r '..|select(has("version"))?|.version' | sort -gr"
+                        """
+        ).split("\r?\n")
+
+        return versions
+    }
+
 }
