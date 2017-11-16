@@ -127,8 +127,8 @@ class NexusTwo {
                             + '&' + "v=${mavenCoordinates.get('version')}"
                             + '&' + "p=${mavenCoordinates.get('packaging')}"
                             + '&' + "c=${mavenCoordinates.get('classifier')}",
-                    "|",
-                    "jq", "--raw", '..|select(has(\"version\"))?|.version', "|", "sort", "-gr"
+                    '|',
+                    "jq", "--raw", '..|select(has(\"version\"))?|.version', '|', "sort", "-gr"
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
