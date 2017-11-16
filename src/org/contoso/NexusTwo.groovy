@@ -39,6 +39,30 @@ class NexusTwo {
         return !isOnline()
     }
 
+    static def isOnline(jenkins) {
+        def httpCode = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent --fail --show-error \
+                        --head \
+                        --output /dev/null \
+                        --write-out %{http_code} \
+                        --location "${ROOT_URL}"
+                        """
+        )
+
+        if (httpCode in HTTP_CODE_FOUND_OK) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    static def isOffline(jenkins) {
+        return !isOnline(jenkins)
+    }
+
     static def getStatus() {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
 
@@ -62,6 +86,39 @@ class NexusTwo {
             return "${appendableOutput.toString()}"
     }
 
+    static def getStatus(jenkins) {
+        def status = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent --fail --show-error \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --request GET \
+                        --location "${STATUS_URL}"
+                        """
+        )
+
+        return status
+    }
+
+    static def getStatusString(jenkins) {
+        def state = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent --fail --show-error \
+                        --header "Content-Type: application/json" \
+                        --header "Accept: application/json" \
+                        --request GET \
+                        --location "${STATUS_URL}" \
+                        | jq -r '..|select(has("state"))?|.state'
+                        """
+        )
+
+        return state
+    }
+
     static def search(String keyword) {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
         def proc = ["curl",
@@ -83,6 +140,26 @@ class NexusTwo {
             return "${appendableError.toString()}"
         else
             return "${appendableOutput.toString()}"
+    }
+
+    static def searchVersions(jenkins, mavenCoordinates) {
+        // Store output in random file as JENKINS-26133 exists might due to typographical error.
+        // Beware typing wrongly `returnStdout` as `returnStdOut`, which return null object.
+        // Otherwise, waste time trying to debug the above problem.
+        // You have been warned!
+
+        def versions = jenkins.sh(
+                returnStdout: true,
+                script: """
+                        curl \
+                        --silent \
+                        --header "Accept: application/json" \
+                        --location "${LUCENE_SEARCH_URL}"?a=${mavenCoordinates.artifactId}" \
+                        | jq -r '..|select(has("version"))?|.version' | sort -gr
+                        """
+        ).split("\r?\n")
+
+        return versions
     }
 
     static def getArtifacts(Map mavenCoordinates) {
