@@ -1,7 +1,7 @@
 import org.contoso.NexusTwo
 
 def call(Map mavenCoordinates) {
-    if (mavenCoordinates == null || mavenCoordinates.isEmpty()) {
+    if (mavenCoordinates == null || mavenCoordinates.size() == 0) {
         mavenCoordinates = [
                 groupId   : "",
                 artifactId: "",
@@ -14,7 +14,7 @@ def call(Map mavenCoordinates) {
 }
 
 def call(jenkins, Map mavenCoordinates) {
-    if (mavenCoordinates == null || mavenCoordinates.isEmpty()) {
+    if (mavenCoordinates == null || mavenCoordinates.size() == 0) {
         mavenCoordinates = [
                 groupId   : "",
                 artifactId: "",
