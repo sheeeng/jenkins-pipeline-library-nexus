@@ -13,3 +13,17 @@ def call(Map mavenCoordinates) {
     return NexusTwo.getArtifacts(mavenCoordinates)
 }
 
+def call(jenkins, Map mavenCoordinates) {
+    if (mavenCoordinates == null || mavenCoordinates.isEmpty()) {
+        mavenCoordinates = [
+                groupId   : "",
+                artifactId: "",
+                version   : "",
+                packaging : "",
+                classifier: ""
+        ]
+    }
+    return NexusTwo.getArtifacts(jenkins, mavenCoordinates)
+}
+
+
