@@ -65,14 +65,18 @@ class NexusTwo {
     static def getRepositories() {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
 
-        def proc = ["curl",
-                    "--silent",
-                    "--fail",
-                    "--show-error",  // https://superuser.com/a/1249678
-                    "--header", "Content-Type: application/json",
-                    "--header", "Accept: application/json",
-                    "--request", "GET",
-                    "--location", "${REPOSITORIES_URL}"
+        def command = """
+                    curl \
+                    --silent --fail --show-error \
+                    --header "Content-Type: application/json" \
+                    --header "Accept: application/json" \
+                    --request GET \
+                    --location "${REPOSITORIES_URL}" \
+                    | jq -r '..|select(has("id"))?|.id'
+                    """
+        def proc = ['bash',
+                    '-c',
+                    command].execute()
         ].execute()
         proc.consumeProcessOutput(appendableOutput, appendableError)
         proc.waitForOrKill(1000)
@@ -208,7 +212,8 @@ class NexusTwo {
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
                         --request GET \
-                        --location "${REPOSITORIES_URL}"
+                        --location "${REPOSITORIES_URL}" \
+                        | jq -r '..|select(has("id"))?|.id'
                         """
         )
 
