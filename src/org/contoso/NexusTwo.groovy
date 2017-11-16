@@ -164,9 +164,6 @@ class NexusTwo {
     }
 
     static def getArtifacts(Map mavenCoordinates) {
-        if (mavenCoordinates == null || mavenCoordinates.isEmpty())
-            return {}
-
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
         def proc = ["curl",
                     "--silent",
@@ -206,7 +203,12 @@ class NexusTwo {
                         --silent \
                         --header "Content-Type: application/json" \
                         --header "Accept: application/json" \
-                        --location "${LUCENE_SEARCH_URL}"?a="${mavenCoordinates.artifactId}" \
+                        --location "${LUCENE_SEARCH_URL}\
+                            ?g=${mavenCoordinates.groupId}\
+                            &a=${mavenCoordinates.artifactId}\
+                            &v=${mavenCoordinates.version}\
+                            &p=${mavenCoordinates.packaging}\
+                            &c=${mavenCoordinates.classifier}
                         | jq -r '..|select(has("version"))?|.version' | sort -gr
                         """
         ).split("\r?\n")

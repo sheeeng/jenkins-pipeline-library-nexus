@@ -36,6 +36,7 @@ pipeline {
                         echo "GetStatus(this):\n${GetStatus(this)}"
                         //echo "Search('log4j'):\n${Search('log4j')}"
                         //echo "GetArtifacts(mavenCoordinates):\n${GetArtifacts(mavenCoordinates)}"
+                        echo "SearchArtifacts(this, mavenCoordinates):\n${SearchArtifacts(this, mavenCoordinates)}"
                         echo "SearchVersions(this, mavenCoordinates):\n${SearchVersions(this, mavenCoordinates)}"
                         sleep(3)
                     }
