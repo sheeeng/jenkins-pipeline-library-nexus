@@ -9,6 +9,10 @@ class NexusTwo {
     static final String REPOSITORIES_URL = "${ROOT_URL}/service/local/repositories"
     static final def HTTP_CODE_FOUND_OK = [302, 200]
 
+    static setRootUrl(String url) {
+        ROOT_URL = url
+    }
+
     static boolean isOnline() {
         def appendableOutput = new StringBuilder(), appendableError = new StringBuilder()
         def proc = ["curl",
