@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pipeline-library-nexus.iml" filepath="$PROJECT_DIR$/.idea/pipeline-library-nexus.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/jenkins-pipeline-library-nexus.iml" filepath="$PROJECT_DIR$/.idea/jenkins-pipeline-library-nexus.iml" />
     </modules>
   </component>
 </project>

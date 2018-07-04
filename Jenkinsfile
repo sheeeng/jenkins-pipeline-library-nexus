@@ -11,12 +11,12 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building.'
-                library identifier: 'pipeline-library-nexus@master',
+                library identifier: 'jenkins-pipeline-library-nexus@master',
                         retriever: modernSCM([
                                 $class: 'GitSCMSource',
                                 credentialsId: '',
                                 id: 'a7037fe6-c0fb-4416-961c-61a6ba5c8aaf',
-                                remote: 'https://github.com/sheeeng/pipeline-library-nexus',
+                                remote: 'https://github.com/sheeeng/jenkins-pipeline-library-nexus',
                                 traits: [[$class: 'jenkins.plugins.git.traits.BranchDiscoveryTrait']]
                         ])
                 script {
